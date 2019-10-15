@@ -1,16 +1,26 @@
 <?php
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    print_r($_POST);
-    $handle = fopen('/config/app.php', 'w') or die('Cannot create configuration file');
-
-    $line = '<?php'.'\n';
-    $line = '<?php'.'\n';
-    $line = '<?php'.'\n';
-    fwrite($handle, $data);
-    $new_data = "\n".'New data line 2';
-    fwrite($handle, $new_data);
+    $file = "config/app.php";
+    @unlink($file);
+    $handle = fopen($file, 'w');
+    fwrite($handle, "<?php\r\n");
+    fwrite($handle, "return array(\r\n");
+    fwrite($handle, "\t'dbtype' => 'mysql',\r\n");
+    fwrite($handle, "\t'hostname' => '".$_POST['hostname']."',\r\n");
+    fwrite($handle, "\t'database' => '".$_POST['database']."',\r\n");
+    fwrite($handle, "\t'username' => '".$_POST['username']."',\r\n");
+    fwrite($handle, "\t'password' => '".$_POST['password']."',\r\n");
+    fwrite($handle, "\t'api_url' => '".$_POST['api_url']."',\r\n");
+    fwrite($handle, "\t'api_secret' => '".$_POST['api_secret']."',\r\n");
+    fwrite($handle, ");\r\n // Generated at ".date('Y-m-d H:i:s'));
 
     fclose($handle);
+    //create table
+    require_once("config/DB.php");
+    $db = new DB();
+    $db = $db->createTable();
+
+    header('Location: /');
 }
 ?>
 <!DOCTYPE html>
@@ -37,12 +47,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
           <tr class="odd">
             <td>Hostname</td>
             <td>:</td>
-            <td><input type="text" class="text" value="" name="hostname" placeholder="127.0.0.1"></td>
+            <td><input type="text" class="text" value="host.docker.internal" name="hostname" placeholder="127.0.0.1"></td>
           </tr>
           <tr>
             <td>Database</td>
             <td>:</td>
-            <td><input type="text" class="text" value="" name="database" placeholder=""></td>
+            <td><input type="text" class="text" value="disbursement" name="database" placeholder="flip"></td>
           </tr>
           <tr class="odd">
             <td>Username</td>
@@ -55,19 +65,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <td><input type="text" class="text" value="" name="password" placeholder=""></td>
           </tr>
           <tr>
-            <td>API Service</td>
+            <td>Flip Web Service</td>
             <td></td>
             <td></td>
           </tr>
           <tr class="odd">
             <td>API Url</td>
             <td>:</td>
-            <td><input type="text" class="text" value="" name="api_url" placeholder=""></td>
+            <td><input type="text" readonly class="text" value="https://nextar.flip.id/disburse" name="api_url" placeholder=""></td>
           </tr>
           <tr>
             <td>API Secret</td>
             <td>:</td>
-            <td><input type="text" class="text" value="" name="api_secret" placeholder=""></td>
+            <td><input type="text" readonly class="text" value="HyzioY7LP6ZoO7nTYKbG8O4ISkyWnX1JvAEVAhtWKZumooCzqp41" name="api_secret" placeholder=""></td>
           </tr>
 
         </tbody>
@@ -75,5 +85,5 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       <button type="submit" class="btn">Submit</button>
       </form>
     </body>
-  
+
 </html>
